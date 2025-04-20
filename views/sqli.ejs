@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🏴‍☠️ SQL Injection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-yellow-200 font-mono flex flex-col items-center mt-20">
+  <h1 class="text-3xl mb-4">💀 SQL Injection </h1>
+
+  <form action="/sqli/search" method="GET" class="space-x-4">
+    <input type="text" name="q" placeholder="Search Pirate Name" class="p-2 rounded text-black" />
+    <button type="submit" class="bg-yellow-400 text-black px-4 py-2 rounded">Search</button>
+  </form>
+
+  <div class="mt-8 w-full max-w-xl" id="result">
+    <!-- Results will show here -->
+  </div>
+</body>
+</html>

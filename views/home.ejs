@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏴‍☠️ Home | Pirate Vault</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-mono">
+  <%- include('partials/navbar') %>
+  <div class="max-w-2xl mx-auto mt-24 p-8 bg-gray-800 rounded-2xl shadow-xl border border-yellow-500">
+    <h1 class="text-3xl font-bold text-yellow-400 text-center mb-6">🏠 Welcome to Pirate Vault</h1>
+
+    <!-- Search Form -->
+    <form id="searchForm" class="flex flex-col md:flex-row gap-4 mb-4">
+      <input 
+        type="text" 
+        name="searchQuery" 
+        placeholder="Search for treasure, users, or secrets..." 
+        class="flex-1 p-3 rounded-lg text-black"
+        required
+      />
+      <button 
+        type="submit"
+        class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-2 rounded-lg"
+      >
+        Search
+      </button>
+    </form>
+
+    <!-- Reflect searched value (vulnerable to Reflected XSS) -->
+    <p id="searchedValue" class="text-yellow-300 text-center mb-4 hidden"></p>
+
+    <!-- Search Result -->
+    <div id="searchResult" class="text-center text-yellow-300 hidden"></div>
+
+    <!-- Navigation -->
+    <div class="mt-8 text-center space-x-4">
+      <a href="/profile" class="text-yellow-400 hover:underline">Go to Profile</a>
+      <a href="#" onclick="logout()" class="text-red-400 hover:underline">Logout</a>
+    </div>
+  </div>
+
+  <script>
+    // Search functionality
+    const form = document.getElementById('searchForm');
+    const resultBox = document.getElementById('searchResult');
+    const searchedValue = document.getElementById('searchedValue');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = new FormData(form).get('searchQuery');
+
+      // 🚨 UNSAFE: Directly injects user input into HTML (Reflected XSS)
+      searchedValue.innerHTML = `🔎 You searched for: <strong>${query}</strong>`; // Vulnerable to XSS
+      searchedValue.classList.remove('hidden');
+
+      resultBox.innerText = `🧭 Searching for "${query}" in the Pirate Vault...`;
+      resultBox.classList.remove('hidden');
+
+      try {
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          resultBox.innerText = "You must be logged in to search.";
+          return;
+        }
+
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.length > 0) {
+            resultBox.innerHTML = `<ul class="list-disc text-left px-8 mt-4 text-yellow-200">` + 
+              data.map(item => `<li><strong>${item.name}</strong> — ${item.location}</li>`).join('') + 
+              `</ul>`;
+          } else {
+            resultBox.innerText = `No treasures found for "${query}".`;
+          }
+        } else {
+          const errMsg = await res.text();
+          resultBox.innerText = errMsg || "Error fetching search results.";
+        }
+      } catch (error) {
+        resultBox.innerText = "An error occurred while searching.";
+        console.error(error);
+      }
+    });
+
+    // Fetch username from /api/userinfo using JWT in localStorage
+    async function fetchUser() {
+      const token = localStorage.getItem("jwt");
+
+      if (!token) {
+        window.location.href = "/";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/userinfo", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const heading = document.querySelector("h1");
+          heading.innerText = `🏠 Welcome, ${data.username}!`;
+        } else {
+          window.location.href = "/";
+        }
+      } catch (err) {
+        console.error("Error fetching user info:", err);
+        window.location.href = "/";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("jwt");
+      window.location.href = "/";
+    }
+
+    fetchUser();
+  </script>
+</body>
+</html>

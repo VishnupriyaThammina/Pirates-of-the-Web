@@ -1,0 +1,59 @@
+<!-- views/layout.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pirate Portal</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #222;
+      padding: 10px 0;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    header h1 {
+      color: #9b4d96;
+      margin: 0;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav a {
+      color: #9b4d96;
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+    }
+    nav a:hover {
+      background-color: #7a3b77;
+      border-radius: 5px;
+    }
+    .container {
+      padding: 40px;
+      background-color: #333;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      width: 80%;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pirate Portal</h1>
+    <nav>
+      <a href="/home">Home</a>
+      <a href="/comments">Comments</a>
+      <a href="/profile">Profile</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+  

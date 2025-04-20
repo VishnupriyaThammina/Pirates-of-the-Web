@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏴‍☠️ Edit Pirate Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-mono">
+  <%- include('partials/navbar') %>
+  <div class="max-w-md mx-auto mt-24 bg-gray-800 p-8 rounded-2xl shadow-xl border border-yellow-500 text-center">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-6">🏴‍☠️ Edit Profile</h2>
+
+    <form id="editForm" class="space-y-4">
+      <div>
+        <label class="block text-yellow-300">Email:</label>
+        <p id="email" class="w-full mt-1 p-2 text-white border-b border-gray-600" readonly></p>
+      </div>
+
+      <div>
+        <label class="block text-yellow-300">Phone:</label>
+        <input type="text" id="phone" class="w-full mt-1 p-2 rounded bg-gray-700 text-white border border-gray-600" required>
+      </div>
+
+      <div>
+        <label class="block text-yellow-300">SSN:</label>
+        <input type="text" id="ssn" class="w-full mt-1 p-2 rounded bg-gray-700 text-white border border-gray-600" required>
+      </div>
+
+      <p id="message" class="text-green-400"></p>
+      <p id="error" class="text-red-500"></p>
+
+      <button type="submit" class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg">
+        Save Changes
+      </button>
+    </form>
+
+    <button
+      onclick="logout()"
+      class="mt-6 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+    >
+      Logout
+    </button>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("jwt");
+
+    if (!token) {
+      window.location.href = "/";
+    }
+
+    async function fetchAndPopulate() {
+      const res = await fetch("/api/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById("email").innerText = data.email; // Display email
+        document.getElementById("phone").value = data.phone;
+        document.getElementById("ssn").value = data.ssn;
+      } else {
+        document.getElementById("error").innerText = "Failed to load profile.";
+      }
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const phone = document.getElementById("phone").value;
+      const ssn = document.getElementById("ssn").value;
+
+      // Create URL-encoded data (no email in the body)
+      const formData = new URLSearchParams();
+      formData.append('phone', phone);
+      formData.append('ssn', ssn);
+
+      const res = await fetch("/api/profile/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded", // Set content type to URL-encoded
+          Authorization: `Bearer ${token}`
+        },
+        body: formData.toString() // Send data as URL-encoded format
+      });
+
+      if (res.ok) {
+        document.getElementById("message").innerText = "Profile updated successfully!";
+      } else {
+        const err = await res.text();
+        document.getElementById("error").innerText = err;
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem("jwt");
+      window.location.href = "/";
+    }
+
+    fetchAndPopulate();
+  </script>
+</body>
+</html>

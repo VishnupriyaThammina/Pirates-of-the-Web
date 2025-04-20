@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏴‍☠️ Comments</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-mono">
+  <%- include('partials/navbar') %>
+  <div class="max-w-4xl mx-auto mt-32 bg-gray-800 p-8 rounded-2xl shadow-xl border border-yellow-500 text-center">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-6">🏴‍☠️ Pirate Comments</h2>
+
+    <!-- Add Comment Form -->
+    <div class="mb-6">
+      <textarea id="new-comment" class="w-full p-4 rounded-lg text-black" placeholder="Add your comment..."></textarea>
+      <button
+        onclick="addComment()"
+        class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg"
+      >
+        Add Comment
+      </button>
+    </div>
+
+    <!-- Comments List -->
+    <div id="comments-container" class="mt-6">
+      <!-- Comments will be loaded here dynamically -->
+    </div>
+
+    <button
+      onclick="logout()"
+      class="mt-6 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg"
+    >
+      Logout
+    </button>
+  </div>
+
+  <script>
+    // Function to fetch and display comments from the backend
+    async function fetchComments() {
+      const token = localStorage.getItem("jwt");
+
+      if (!token) {
+        window.location.href = "/"; // Redirect to login if no token is found
+        return;
+      }
+
+      const res = await fetch("/api/comments", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.text(); // Fetch the HTML response from backend
+
+        // If the backend returns a full HTML page with error messages
+        if (data.includes("<h1>JWT token is required</h1>") || data.includes("<h1>Invalid or expired token</h1>") || data.includes("<h1>User not found</h1>")) {
+          document.getElementById("comments-container").innerHTML = data; // Display error directly
+        } else {
+          // Inject the comments HTML directly if valid (without sanitizing)
+          document.getElementById("comments-container").innerHTML = data; 
+        }
+      } else {
+        document.getElementById("comments-container").innerHTML = "<p>Failed to load comments. Please try again later.</p>";
+      }
+    }
+
+    // Function to add a new comment
+   
+
+    async function addComment() {
+    const token = localStorage.getItem("jwt");
+    const newComment = document.getElementById("new-comment").value;
+
+    if (!newComment.trim()) {
+        alert("Comment cannot be empty!");
+        return;
+    }
+
+    if (!token) {
+        window.location.href = "/"; // Redirect to login if no token is found
+        return;
+    }
+
+    // URL-encoded format for the body
+    const formData = new URLSearchParams();
+    formData.append('comment', newComment);
+
+    const res = await fetch("/api/comments/add", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/x-www-form-urlencoded" // Set content type to URL-encoded
+        },
+        body: formData.toString() // Convert formData to query string format
+    });
+
+    if (res.ok) {
+        fetchComments(); // Reload the comments after adding a new one
+        document.getElementById("new-comment").value = ''; // Clear the textarea
+    } else {
+        alert("Failed to add comment. Please try again later.");
+    }
+}
+
+fetchComments(); // Load comments on page load
+ // Load comments on page load
+  </script>
+
+</body>
+</html>

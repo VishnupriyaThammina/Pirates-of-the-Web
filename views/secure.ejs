@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏴‍☠️ Secure Pirate Vault</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-mono">
+  <%- include('partials/navbar') %>
+  <div class="max-w-md mx-auto mt-32 bg-gray-800 p-8 rounded-2xl shadow-xl border border-yellow-500 text-center">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-6">🏴‍☠️ Secure Vault</h2>
+    <p id="welcome" class="text-lg text-yellow-300">Loading user info...</p>
+    <p id="error" class="text-red-500 mt-4"></p>
+
+    <button
+      onclick="logout()"
+      class="mt-6 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg"
+    >
+      Logout
+    </button>
+  </div>
+
+  <script>
+    async function fetchUser() {
+      const token = localStorage.getItem("jwt");
+
+      if (!token) {
+        window.location.href = "/";
+        return;
+      }
+
+      const res = await fetch("/api/userinfo", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById("welcome").innerText = `Welcome, ${data.username}!`;
+      } else {
+        document.getElementById("error").innerText = "Access denied. Redirecting to login...";
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("jwt");
+      window.location.href = "/";
+    }
+
+    fetchUser();
+  </script>
+</body>
+</html>

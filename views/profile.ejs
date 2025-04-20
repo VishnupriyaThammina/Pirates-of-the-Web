@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏴‍☠️ Secure Pirate Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-mono">
+  <%- include('partials/navbar') %>
+  <div class="max-w-md mx-auto mt-32 bg-gray-800 p-8 rounded-2xl shadow-xl border border-yellow-500 text-center">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-6">🏴‍☠️ Your Profile</h2>
+    <p id="welcome" class="text-lg text-yellow-300">Loading user info...</p>
+    <p id="error" class="text-red-500 mt-4"></p>
+
+    <div class="mt-6">
+      <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+      <p><strong>Phone:</strong> <span id="phone">Loading...</span></p>
+      <p><strong>SSN:</strong> <span id="ssn">Loading...</span></p>
+    </div>
+
+    <button
+      onclick="logout()"
+      class="mt-6 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg"
+    >
+      Logout
+    </button>
+  </div>
+
+  <script>
+    // Fetch user profile information securely
+    async function fetchUserProfile() {
+      const token = localStorage.getItem("jwt");
+
+      if (!token) {
+        window.location.href = "/"; // Redirect to login if no token is found
+        return;
+      }
+
+      const res = await fetch("/api/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Update the profile data dynamically on the page
+        document.getElementById("username").innerText = data.username;
+        document.getElementById("email").innerText = data.email;
+        document.getElementById("phone").innerText = data.phone;
+        document.getElementById("ssn").innerText = data.ssn;
+        document.getElementById("welcome").innerText = `Welcome, ${data.username}!`;
+      } else {
+        // Handle failed API response (e.g., expired token)
+        document.getElementById("error").innerText = "Access denied. Redirecting to login...";
+        setTimeout(() => {
+          window.location.href = "/"; // Redirect to login after showing error message
+        }, 2000);
+      }
+    }
+
+    // Handle user logout
+    function logout() {
+      localStorage.removeItem("jwt"); // Remove the token from localStorage
+      window.location.href = "/"; // Redirect to login page
+    }
+
+    fetchUserProfile(); // Call the function to load user data when the page is loaded
+  </script>
+</body>
+</html>

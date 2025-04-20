@@ -1,0 +1,96 @@
+<!-- views/partials/navbar.ejs -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/jquery/jquery.min.js"></script> 
+<style>
+  :root {
+    --glass-bg: rgba(32, 18, 63, 0.45); /* semi-transparent dark purple */
+    --border-color: rgba(173, 216, 230, 0.25); /* light blue tint */
+    --text-color: #e0e0f0;
+    --hover-color: #6dd5fa; /* blue with a calm glow */
+    --active-color: #b983ff;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+  }
+
+  .navbar {
+    font-family: 'Inter', sans-serif;
+    backdrop-filter: blur(18px) saturate(180%);
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.2rem 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 6px 20px var(--shadow-color);
+    border-radius: 0 0 12px 12px;
+  }
+
+  .navbar ul {
+    display: flex;
+    gap: 2.8rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .navbar a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: all 0.3s ease;
+    font-size: 1.05rem;
+    padding: 6px 10px;
+  }
+
+  .navbar a::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    width: 0%;
+    height: 2px;
+    background: var(--hover-color);
+    transition: width 0.3s ease;
+  }
+
+  .navbar a:hover {
+    color: var(--hover-color);
+  }
+
+  .navbar a:hover::after {
+    width: 100%;
+  }
+
+  .navbar-icon {
+    margin-right: 8px;
+    font-size: 1.15rem;
+  }
+
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 1rem 1.5rem;
+    }
+
+    .navbar ul {
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+  }
+</style>
+
+<nav class="navbar">
+  <ul>
+    <li><a href="/home"><span class="navbar-icon">🏴‍☠️</span>Home</a></li>
+    <li><a href="/profile"><span class="navbar-icon">🧭</span>Profile</a></li>
+    <li><a href="/edit-profile"><span class="navbar-icon">⚓</span>Edit</a></li>
+    <li><a href="/comments"><span class="navbar-icon">🗺️</span>Comments</a></li>
+    <li><a href="/maps"><span class="navbar-icon">🌊</span>Map</a></li>
+    <li><a href="/secure"><span class="navbar-icon">🔐</span>Secure</a></li>
+  </ul>
+</nav>

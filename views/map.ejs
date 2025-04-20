@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏴‍☠️ Secure Pirate Vault - Maps</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  
+</head>
+<body class="bg-gray-900 text-white font-mono">
+  <%- include('partials/navbar') %>
+
+  <div class="max-w-4xl mx-auto mt-32 bg-gray-800 p-8 rounded-2xl shadow-xl border border-yellow-500">
+    <h2 class="text-3xl font-bold text-yellow-400 text-center mb-6">🏴‍☠️ Pirate Map Wins</h2>
+
+    <p id="welcome" class="text-lg text-yellow-300 text-center">Loading map information...</p>
+    <p id="error" class="text-red-500 mt-4 text-center"></p>
+
+    <div id="maps" class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <p class="text-yellow-300">Loading maps...</p>
+    </div>
+
+    <div class="flex justify-center mt-8">
+      <button
+        onclick="logout()"
+        class="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-3 rounded-lg shadow-md transition duration-300"
+      >
+        Logout
+      </button>
+    </div>
+  </div>
+  <script>
+    async function checkLoginAndLoad() {
+      const token = localStorage.getItem("jwt");
+  
+      if (!token) {
+        window.location.href = "/";
+        return;
+      }
+  
+      const userRes = await fetch("/api/userinfo", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        document.getElementById("welcome").innerText = `Ahoy, ${userData.username}! Loading yer maps...`;
+        fetchMaps(token);
+      } else {
+        document.getElementById("error").innerText = "Access denied. Redirecting to login...";
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+      }
+    }
+  
+    async function fetchMaps(token) {
+      const res = await fetch("/map-wins", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        const maps = data.maps;  // ✅ extract maps array
+        // Username is in data.username, but not shown in UI
+  
+        if (maps.length === 0) {
+          document.getElementById("maps").innerHTML = "<p class='text-yellow-300'>No maps found for this user.</p>";
+        } else {
+          let mapsContent = '';
+          maps.forEach(map => {
+            mapsContent += `
+              <div class="bg-gray-700 p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+                <h3 class="text-2xl text-yellow-400 font-semibold mb-2">Map ID: ${map.map_id}</h3>
+                <div class="text-gray-300">
+                  <p><strong class="text-yellow-300">Victim City:</strong> ${map.victim_city}</p>
+                  <p><strong class="text-yellow-300">Jewel Stolen:</strong> ${map.jewel_stolen}</p>
+                  <p><strong class="text-yellow-300">Houses Demolished:</strong> ${map.houses_demolished}</p>
+                  <p><strong class="text-yellow-300">Loot Satisfied:</strong> ${map.loot_satisfied}</p>
+                </div>
+                <div class="mt-4">
+                  <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg shadow-md transition duration-300">
+                    View Map Details
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+          document.getElementById("maps").innerHTML = mapsContent;
+        }
+      } else {
+        const error = await res.json();
+        document.getElementById("error").innerHTML = error.error || error.message || 'An unexpected error occurred.';
+        document.getElementById("maps").innerHTML = "<p class='text-red-500'>Error fetching maps. Please try again.</p>";
+      }
+    }
+  
+    function logout() {
+      localStorage.removeItem("jwt");
+      window.location.href = "/";
+    }
+  
+    checkLoginAndLoad();
+  </script>
+  
+</body>
+</html>
